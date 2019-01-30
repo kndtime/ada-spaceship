@@ -1,6 +1,8 @@
 
 with STM32.Board;         use STM32.Board;
 with Ada.Real_Time;       use Ada.Real_Time;
+with Ada.Numerics.Discrete_Random;
+
 
 with STM32.DMA2D;         use STM32.DMA2D;
 with STM32.DMA2D_Bitmap;  use STM32.DMA2D_Bitmap;
@@ -11,6 +13,7 @@ with BMP_Fonts;
 with Ada.Text_IO;
 with Spaceship;          use Spaceship;
 with Missile;            use Missile;
+with Ennmie;             use Ennmie;
 with LCD_Std_Out;
 
 procedure spaceship_gui
@@ -18,22 +21,35 @@ is
    X_Coord : Integer := 0;
    Y_Coord : Integer := 0;
 
+   -- 480x272
    Width  : Natural;  -- 240
    Height : Natural;  -- 320
 
+   MAX_WIDTH : Natural := 480;
+   MAX_HEIGHT : Natural := 272;
+
    Shoot : Integer := 100;
    count : Integer := 0;
+
+   subtype RGN_H is Integer range 150 .. MAX_HEIGHT;
+   subtype RGN_W is Integer range 80 .. MAX_WIDTH;
+
+   package Random_H is new Ada.Numerics.Discrete_Random (RGN_H); use Random_H;
+   G : Generator;
+
    type GAMESTATE is (STARTING, RUNNING, PAUSE, OVER);
    g_state : GAMESTATE := STARTING;
 
    Period       : constant Time_Span := Milliseconds (1);
    Next_Release : Time := Clock;
    Next_missile : Integer := 0;
+   Next_Ennmie  : Integer := 0;
 
    function Bitmap_Buffer return not null Any_Bitmap_Buffer;
    function Buffer return DMA2D_Buffer;
 
    Missiles : array (1 .. 15) of Missile.Missile;
+   Ennmies : array (1 .. 8) of Ennmie.Ennmie;
    space : Spaceship.Spaceship;
    -------------------
    -- Bitmap_Buffer --
@@ -57,6 +73,24 @@ is
       return To_DMA2D_Buffer (Display.Hidden_Buffer (1).all);
    end Buffer;
 
+   procedure update_Enn is
+   begin
+      if Next_Ennmie = 0 then
+         for i in Ennmies'First .. Ennmies'Last loop
+            if Ennmies(i).State = DEAD then
+               Ennmie.appear_enn(Ennmies(i), MAX_HEIGHT - 5, Random(G), MAX_HEIGHT, MAX_WIDTH);
+               exit;
+            end if;
+         end loop;
+         Next_Ennmie := 45;
+      else
+         Next_Ennmie := Next_Ennmie - 1;
+      end if;
+      for i in Ennmies'First .. Ennmies'Last loop
+          Ennmie.move_enn(Ennmies(i));
+      end loop;
+   end update_Enn;
+
    procedure update(X : Integer; Y : Integer) is
    begin
       if Next_missile = 0 then
@@ -73,6 +107,7 @@ is
       for i in Missiles'First .. Missiles'Last loop
           Missile.move_mis(Missiles(i));
       end loop;
+      update_Enn;
       if X = 0 then
          return;
       end if;
@@ -115,7 +150,8 @@ is
       end loop;
       end draw;
 
- begin
+begin
+   Reset(G);
    --  Initialize LCD
    Display.Initialize;
    Display.Initialize_Layer (1, HAL.Bitmap.ARGB_8888);

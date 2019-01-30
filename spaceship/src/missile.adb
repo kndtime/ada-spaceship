@@ -17,7 +17,7 @@ package body Missile is
       return;
     end if;
 
-    s.Y := (s.Y + 1);
+    s.Y := (s.Y + 5);
 
    if S.Max_Y <= s.Y then
      s.State := DEAD;
