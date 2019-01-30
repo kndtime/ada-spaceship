@@ -56,19 +56,20 @@ is
    Display.Initialize;
    Display.Initialize_Layer (1, HAL.Bitmap.ARGB_8888);
 
+   Touch_Panel.Initialize;
 
-    Width := Display.Hidden_Buffer (1).Width;
-    Height := Display.Hidden_Buffer (1).Height;
+   Width  := Bitmap_Buffer.Width;
+   Height := Bitmap_Buffer.Height;
+
+
    loop
       Bitmap_Buffer.Set_Source (HAL.Bitmap.Dark_Green);
       Bitmap_Buffer.Fill;
-        declare
-           Touch : constant TP_State := Touch_Panel.Get_All_Touch_Points;
-        begin
-           if Touch'Length > 0 then
-              X_Coord := Touch (Touch'First).X;
-              Y_Coord := Touch (Touch'First).Y;
-           end if;
+
+      Bitmap_Buffer.Set_Source (HAL.Bitmap.Blue);
+      Bitmap_Buffer.Fill_Rect ((Position => (0, 0),
+                                Width    => Width / 2,
+                                Height   => Height / 2));
 
            case state is
                 when STARTING =>
@@ -80,7 +81,12 @@ is
                 when OVER =>
                   LCD_Std_Out.Put_Line ("Over State");
            end case;
-        end;
-    end loop;
+
+      Display.Update_Layers;
+      Next_Release := Next_Release + Period;
+
+      delay until Next_Release;
+
+   end loop;
 
 end spaceship_gui;
