@@ -21,16 +21,19 @@ is
    Width  : Natural;  -- 240
    Height : Natural;  -- 320
 
+   Shoot : Integer := 100;
+   count : Integer := 0;
    type GAMESTATE is (STARTING, RUNNING, PAUSE, OVER);
    g_state : GAMESTATE := STARTING;
 
-   Period       : constant Time_Span := Milliseconds (10);
+   Period       : constant Time_Span := Milliseconds (1);
    Next_Release : Time := Clock;
+   Next_missile : Integer := 0;
 
    function Bitmap_Buffer return not null Any_Bitmap_Buffer;
    function Buffer return DMA2D_Buffer;
 
-   Missiles : array (1 .. 10) of Missile.Missile;
+   Missiles : array (1 .. 15) of Missile.Missile;
    space : Spaceship.Spaceship;
    -------------------
    -- Bitmap_Buffer --
@@ -56,12 +59,25 @@ is
 
    procedure update(X : Integer; Y : Integer) is
    begin
+      if Next_missile = 0 then
+      for i in Missiles'First .. Missiles'Last loop
+         if Missiles(i).State = DEAD then
+            Missile.appear_mis(Missiles(i), space.X, space.Y, Height);
+            exit;
+         end if;
+         end loop;
+         Next_missile := 10;
+      else
+         Next_missile := Next_missile - 1;
+      end if;
+      for i in Missiles'First .. Missiles'Last loop
+          Missile.move_mis(Missiles(i));
+      end loop;
+      if X = 0 then
+         return;
+      end if;
       space.X := X;
       space.Y := Y;
-      for i in Missiles'First .. Missiles'Last loop
-         Missile.appear_mis(Missiles(i), X, Y, Height);
-         Missile.move_mis(Missiles(i));
-      end loop;
    end update;
 
    procedure draw_mis(s : in Missile.Missile) is
@@ -72,8 +88,8 @@ is
 
      Bitmap_Buffer.Set_Source (HAL.Bitmap.Yellow);
      Bitmap_Buffer.Fill_Rect ((Position => (s.X, s.Y),
-                               Width    => Width / 16,
-                               Height   => Height / 20));
+                               Width    => Width / 80,
+                               Height   => Height / 80));
    end draw_mis;
 
    procedure draw_space(s : in out Spaceship.Spaceship; X : Integer; Y : Integer) is
@@ -120,10 +136,12 @@ is
            Y_Coord := State (State'First).Y;
         end if;
       end;
-      Bitmap_Buffer.Set_Source (HAL.Bitmap.Dark_Green);
+      Bitmap_Buffer.Set_Source (HAL.Bitmap.Black);
       Bitmap_Buffer.Fill;
 
-      update(X_Coord, Y_Coord);
+         update(X_Coord, Y_Coord);
+
+
       if X_Coord /= 0 then
          draw(X_Coord, Y_Coord);
       else
@@ -139,10 +157,9 @@ is
            --      when OVER =>
            --        LCD_Std_Out.Put_Line ("Over State");
            -- end case;
-
+      count := count + 10;
       Display.Update_Layers;
       Next_Release := Next_Release + Period;
-
       delay until Next_Release;
 
    end loop;
