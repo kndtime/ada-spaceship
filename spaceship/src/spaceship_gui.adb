@@ -31,7 +31,7 @@ is
    Shoot : Integer := 100;
    count : Integer := 0;
 
-   subtype RGN_H is Integer range 0 .. MAX_HEIGHT;
+   subtype RGN_H is Integer range 25 ..( MAX_HEIGHT - 25);
    subtype RGN_W is Integer range 80 .. MAX_WIDTH;
 
    package Random_H is new Ada.Numerics.Discrete_Random (RGN_H); use Random_H;
@@ -91,15 +91,18 @@ is
                exit;
             end if;
          end loop;
-         Next_Ennmie := 100;
+         Next_Ennmie := 50;
       else
          Next_Ennmie := Next_Ennmie - 1;
       end if;
       if Next_Enemie_Move = 0 then
          for i in Ennmies'First .. Ennmies'Last loop
+            if Ennmies(i).State = DMG_DEALT then
+               Ennmies(i).State := DEAD;
+            end if;
             Ennmie.move_enn(Ennmies(i));
          end loop;
-         Next_Enemie_Move := 5;
+         Next_Enemie_Move := 2;
       else
          Next_Enemie_Move := Next_Enemie_Move - 1;
       end if;
@@ -114,12 +117,15 @@ is
             exit;
          end if;
          end loop;
-         Next_missile := 10;
+         Next_missile := 20;
       else
          Next_missile := Next_missile - 1;
       end if;
       for i in Missiles'First .. Missiles'Last loop
-          Missile.move_mis(Missiles(i));
+         Missile.move_mis(Missiles(i));
+         if Missiles(i).State = TOUCHED then
+            Missiles(i).State := DEAD;
+         end if;
       end loop;
       update_Enn;
       for i in Missiles'First .. Missiles'Last loop
