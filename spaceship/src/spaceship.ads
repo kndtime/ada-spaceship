@@ -3,7 +3,7 @@ package Spaceship is
    type Spaceship_State is
         (ALIVE, SHOOTING, DMG_DEALT, RECOVER, INVISIBLE, DEAD);
   type Spaceship is record
-      State : Spaceship_State;
+      State : Spaceship_State := ALIVE;
       Life : Integer := 100;
       Damage  : Positive := 100;
       Boost : Integer := 0;
