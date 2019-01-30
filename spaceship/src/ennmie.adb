@@ -12,17 +12,9 @@ package body Ennmie is
     s.State := ALIVE;
   end appear_enn;
 
-  procedure move_enn(s : in out Ennmie)
-  is
-    count : Integer := 100;
-   begin
-     if count = 0 then
-         s.Y := s.Y - 1;
-         count := 10;
-      else
-         count := count - 1;
-      end if;
-
+  procedure move_enn(s : in out Ennmie) is
+  begin
+      s.Y := s.Y - 1;
 
       if s.X > s.Max_X then
         s.X := s.Max_X - 5;

@@ -44,6 +44,7 @@ is
    Next_Release : Time := Clock;
    Next_missile : Integer := 0;
    Next_Ennmie  : Integer := 0;
+   Next_Enemie_Move : Integer := 0;
 
    function Bitmap_Buffer return not null Any_Bitmap_Buffer;
    function Buffer return DMA2D_Buffer;
@@ -86,9 +87,14 @@ is
       else
          Next_Ennmie := Next_Ennmie - 1;
       end if;
-      for i in Ennmies'First .. Ennmies'Last loop
-          Ennmie.move_enn(Ennmies(i));
-      end loop;
+      if Next_Enemie_Move = 0 then
+         for i in Ennmies'First .. Ennmies'Last loop
+            Ennmie.move_enn(Ennmies(i));
+         end loop;
+         Next_Enemie_Move := 5;
+      else
+         Next_Enemie_Move := Next_Enemie_Move - 1;
+      end if;
    end update_Enn;
 
    procedure update(X : Integer; Y : Integer) is
