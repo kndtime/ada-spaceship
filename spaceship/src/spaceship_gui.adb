@@ -78,7 +78,7 @@ is
       if Next_Ennmie = 0 then
          for i in Ennmies'First .. Ennmies'Last loop
             if Ennmies(i).State = DEAD then
-               Ennmie.appear_enn(Ennmies(i), MAX_HEIGHT - 5, Random(G), MAX_HEIGHT, MAX_WIDTH);
+               Ennmie.appear_enn(Ennmies(i), MAX_HEIGHT - 5, RANDOM(G) , MAX_HEIGHT, MAX_WIDTH);
                exit;
             end if;
          end loop;
@@ -150,9 +150,9 @@ is
             Bitmap_Buffer.Set_Source (HAL.Bitmap.White);
             end if;
       end if;
-         Bitmap_Buffer.Fill_Rect ((Position => (e.X, e.Y),
-                               Width    => Width / 8,
-                                   Height   => Height / 8));
+         Bitmap_Buffer.Fill_Rect ((Position => (45, 45),
+                               Width    => Width / 12,
+                                   Height   => Height / 12));
    end draw_enn;
 
    procedure draw(X : Integer; Y : Integer) is
