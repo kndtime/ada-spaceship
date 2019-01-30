@@ -31,7 +31,7 @@ is
    Shoot : Integer := 100;
    count : Integer := 0;
 
-   subtype RGN_H is Integer range 150 .. MAX_HEIGHT;
+   subtype RGN_H is Integer range 0 .. MAX_HEIGHT;
    subtype RGN_W is Integer range 80 .. MAX_WIDTH;
 
    package Random_H is new Ada.Numerics.Discrete_Random (RGN_H); use Random_H;
@@ -49,8 +49,8 @@ is
    function Bitmap_Buffer return not null Any_Bitmap_Buffer;
    function Buffer return DMA2D_Buffer;
 
-   Missiles : array (1 .. 8) of Missile.Missile;
-   Ennmies : array (1 .. 4) of Ennmie.Ennmie;
+   Missiles : array (1 .. 15) of Missile.Missile;
+   Ennmies : array (1 .. 8) of Ennmie.Ennmie;
    space : Spaceship.Spaceship;
    -------------------
    -- Bitmap_Buffer --
@@ -74,16 +74,24 @@ is
       return To_DMA2D_Buffer (Display.Hidden_Buffer (1).all);
    end Buffer;
 
+   procedure ishit(m : in out Missile. Missile; e: in out Ennmie.Ennmie) is
+   begin
+      if m.X > e.X and m.X < (e.X + 25) and m.Y > e.Y then
+         e.State := DMG_DEALT;
+         m.State := TOUCHED;
+      end if;
+   end ishit;
+
    procedure update_Enn is
    begin
       if Next_Ennmie = 0 then
          for i in Ennmies'First .. Ennmies'Last loop
             if Ennmies(i).State = DEAD then
-               Ennmie.appear_enn(Ennmies(i), MAX_HEIGHT - 5, RANDOM(G) , MAX_HEIGHT, MAX_WIDTH);
+               Ennmie.appear_enn(Ennmies(i), RANDOM(G), MAX_HEIGHT  -5 , MAX_HEIGHT, MAX_WIDTH);
                exit;
             end if;
          end loop;
-         Next_Ennmie := 45;
+         Next_Ennmie := 100;
       else
          Next_Ennmie := Next_Ennmie - 1;
       end if;
@@ -114,6 +122,15 @@ is
           Missile.move_mis(Missiles(i));
       end loop;
       update_Enn;
+      for i in Missiles'First .. Missiles'Last loop
+         if Missiles(i).State = ALIVE then
+            for j in Ennmies'First .. Ennmies'Last loop
+               if Ennmies(j).State = ALIVE then
+                  ishit(Missiles(i), Ennmies(j));
+               end if;
+            end loop;
+         end if;
+      end loop;
       if X = 0 then
          return;
       end if;
@@ -150,13 +167,16 @@ is
 
    procedure draw_enn(e : in Ennmie.Ennmie) is
    begin
+      if e.State = DEAD then
+         return;
+      end if;
       if e.State = ALIVE then
          Bitmap_Buffer.Set_Source (HAL.Bitmap.Red);
       else if e.State = DMG_DEALT then
             Bitmap_Buffer.Set_Source (HAL.Bitmap.White);
             end if;
       end if;
-         Bitmap_Buffer.Fill_Rect ((Position => (45, 45),
+         Bitmap_Buffer.Fill_Rect ((Position => (e.X, e.Y),
                                Width    => Width / 12,
                                    Height   => Height / 12));
    end draw_enn;
@@ -183,7 +203,7 @@ begin
    Width  := Bitmap_Buffer.Width;
    Height := Bitmap_Buffer.Height;
 
-   space.Y := Height/2;
+   space.Y := 20;
    space.X := Width/2;
    loop
      declare

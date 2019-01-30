@@ -14,14 +14,14 @@ package body Ennmie is
 
   procedure move_enn(s : in out Ennmie) is
   begin
-      s.Y := s.Y - 1;
+      s.Y := s.Y - 5;
 
-      if s.X > s.Max_X then
-        s.X := s.Max_X - 5;
+      if s.X < 7 then
+        s.State := DEAD;
       end if;
 
-      if s.Y > s.Max_Y then
-        s.Y := s.Max_Y - 5;
+      if s.Y < 7 then
+        s.State := DEAD;
       end if;
   end move_enn;
 
