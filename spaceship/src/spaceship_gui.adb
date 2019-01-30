@@ -48,8 +48,8 @@ is
    function Bitmap_Buffer return not null Any_Bitmap_Buffer;
    function Buffer return DMA2D_Buffer;
 
-   Missiles : array (1 .. 15) of Missile.Missile;
-   Ennmies : array (1 .. 8) of Ennmie.Ennmie;
+   Missiles : array (1 .. 8) of Missile.Missile;
+   Ennmies : array (1 .. 4) of Ennmie.Ennmie;
    space : Spaceship.Spaceship;
    -------------------
    -- Bitmap_Buffer --
@@ -142,11 +142,27 @@ is
                                    Height   => Height / 8));
    end draw_space;
 
+   procedure draw_enn(e : in Ennmie.Ennmie) is
+   begin
+      if e.State = ALIVE then
+         Bitmap_Buffer.Set_Source (HAL.Bitmap.Red);
+      else if e.State = DMG_DEALT then
+            Bitmap_Buffer.Set_Source (HAL.Bitmap.White);
+            end if;
+      end if;
+         Bitmap_Buffer.Fill_Rect ((Position => (e.X, e.Y),
+                               Width    => Width / 8,
+                                   Height   => Height / 8));
+   end draw_enn;
+
    procedure draw(X : Integer; Y : Integer) is
    begin
       draw_space(space, X, Y);
       for i in Missiles'First .. Missiles'Last loop
          draw_mis(Missiles(i));
+      end loop;
+      for i in Ennmies'First .. Ennmies'Last loop
+         draw_enn(Ennmies(i));
       end loop;
       end draw;
 

@@ -13,7 +13,8 @@ package body Ennmie is
   end appear_enn;
 
   procedure move_enn(s : in out Ennmie) is
-    begin
+   begin
+      s.X := s.X - 1;
       s.Y := s.Y - 1;
 
       if s.X > s.Max_X then
