@@ -1,6 +1,6 @@
 package body Missile is
 
-  procedure appear_mis(s : in out Missile; X : Integer; Y : Integer; Max_Y : Integer) is
+   procedure appear_mis(s : in out Missile; X : Integer; Y : Integer; Max_Y : Integer) is
    begin
       if s.State /= DEAD then
          return;
@@ -11,7 +11,7 @@ package body Missile is
     s.State := ALIVE;
   end appear_mis;
 
-  procedure move_mis(s : in out Missile) is
+   procedure move_mis(s : in out Missile) is
   begin
     if s.State = DEAD then
       return;

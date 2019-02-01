@@ -3,18 +3,13 @@ with STM32.Board;         use STM32.Board;
 with Ada.Real_Time;       use Ada.Real_Time;
 with Ada.Numerics.Discrete_Random;
 
-
-with STM32.DMA2D;         use STM32.DMA2D;
 with STM32.DMA2D_Bitmap;  use STM32.DMA2D_Bitmap;
 with HAL.Bitmap;          use HAL.Bitmap;
 with HAL.Touch_Panel;     use HAL.Touch_Panel;
-with BMP_Fonts;
 
-with Ada.Text_IO;
 with Spaceship;          use Spaceship;
 with Missile;            use Missile;
 with Ennmie;             use Ennmie;
-with LCD_Std_Out;
 
 procedure spaceship_gui
 is
@@ -25,20 +20,16 @@ is
    Width  : Natural;  -- 240
    Height : Natural;  -- 320
 
-   MAX_WIDTH : Natural := 480;
-   MAX_HEIGHT : Natural := 272;
+    MAX_WIDTH : constant Natural := 480;
+    MAX_HEIGHT : constant Natural := 272;
 
-   Shoot : Integer := 100;
    count : Integer := 0;
 
    subtype RGN_H is Integer range 25 ..( MAX_HEIGHT - 25);
-   subtype RGN_W is Integer range 80 .. MAX_WIDTH;
 
    package Random_H is new Ada.Numerics.Discrete_Random (RGN_H); use Random_H;
    G : Generator;
 
-   type GAMESTATE is (STARTING, RUNNING, PAUSE, OVER);
-   g_state : GAMESTATE := STARTING;
 
    Period       : constant Time_Span := Milliseconds (1);
    Next_Release : Time := Clock;
@@ -47,7 +38,6 @@ is
    Next_Enemie_Move : Integer := 0;
 
    function Bitmap_Buffer return not null Any_Bitmap_Buffer;
-   function Buffer return DMA2D_Buffer;
 
    Missiles : array (1 .. 15) of Missile.Missile;
    Ennmies : array (1 .. 8) of Ennmie.Ennmie;
@@ -64,15 +54,6 @@ is
 
       return Display.Hidden_Buffer (1);
    end Bitmap_Buffer;
-
-   ------------
-   -- Buffer --
-   ------------
-
-   function Buffer return DMA2D_Buffer is
-   begin
-      return To_DMA2D_Buffer (Display.Hidden_Buffer (1).all);
-   end Buffer;
 
    procedure ishit(m : in out Missile. Missile; e: in out Ennmie.Ennmie) is
    begin
@@ -100,7 +81,9 @@ is
             if Ennmies(i).State = DMG_DEALT then
                Ennmies(i).State := DEAD;
             end if;
-            Ennmie.move_enn(Ennmies(i));
+            if Ennmies(i).State /= DEAD then
+               Ennmie.move_enn(Ennmies(i));
+            end if;
          end loop;
          Next_Enemie_Move := 2;
       else
@@ -122,7 +105,9 @@ is
          Next_missile := Next_missile - 1;
       end if;
       for i in Missiles'First .. Missiles'Last loop
-         Missile.move_mis(Missiles(i));
+         if Missiles(i).State /= DEAD then
+            Missile.move_mis(Missiles(i));
+         end if;
          if Missiles(i).State = TOUCHED then
             Missiles(i).State := DEAD;
          end if;
@@ -231,16 +216,7 @@ begin
       else
          draw(space.X, space.Y);
       end if;
-           -- case g_state is
-           --      when STARTING =>
-           --        LCD_Std_Out.Put_Line ("Start State");
-           --      when RUNNING =>
-           --        LCD_Std_Out.Put_Line ("Running State");
-           --      when PAUSE =>
-           --        LCD_Std_Out.Put_Line ("Pause State");
-           --      when OVER =>
-           --        LCD_Std_Out.Put_Line ("Over State");
-           -- end case;
+
       count := count + 10;
       Display.Update_Layers;
       Next_Release := Next_Release + Period;

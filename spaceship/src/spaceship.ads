@@ -11,8 +11,16 @@ package Spaceship is
       Y : Integer;
       Speed : Integer;
    end record;
-   procedure set_dmg(s : in out Spaceship; dmg: Integer);
-   procedure shoot (s : in out Spaceship);
-   procedure move (s : in out Spaceship; X : Integer; Y : Integer);
+   procedure set_dmg(s : in out Spaceship; dmg: Integer)
+   with
+        Pre => s.State /= DEAD and dmg /= 0,
+       Post => (if s.Life <= 0 then
+                   s.State = DEAD);
+   procedure shoot (s : in out Spaceship)
+     with
+         Pre => s.STATE /= DEAD and s.Life > 0;
+   procedure move (s : in out Spaceship; X : Integer; Y : Integer)
+     with
+         Pre => s.State /= DEAD;
    procedure test;
 end Spaceship;
