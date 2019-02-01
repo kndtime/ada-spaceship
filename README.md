@@ -22,15 +22,14 @@ A step by step series of examples that tell you how to get a development env run
 
 Say what the step will be
 
-```
+```bash
 git clone https://github.com/kndtime/ada-spaceship
-Import the spaceship.gpr file from GPS
-Compile the code
-Flash the executable on the STM32F429-Discovery
+cd ada-spaceship
+gps spaceship/spaceship.gpr
 ```
 Here is a screen of a board running the game.
 
-![Alt text](https://raw.githubusercontent.com/kndtime/ada-spaceship/master/board.jpg?raw=true "Title")
+![Alt text](https://github.com/kndtime/ada-spaceship/blob/master/board.JPG?raw=true "board")
 
 
 ## Running the tests
@@ -52,15 +51,10 @@ with
 * [Ada_Drivers_Library](https://github.com/AdaCore/Ada_Drivers_Library) - Drivers for the STM32F429
 * [Stlink](https://github.com/texane/stlink) - Used to flash the code on the card
 
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
 ## Authors
 
 * **Axel Banal** - *Initial work* - [Kndtime](https://github.com/Kndtime)
 * **Antoine Lebeury** - *Initial work* - [Kndtime](https://github.com/antoine-lebeury)
-
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
